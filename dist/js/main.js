@@ -519,8 +519,6 @@ function hmrAcceptRun(bundle, id) {
 }
 
 },{}],"hDgnn":[function(require,module,exports) {
-console.log("testfdsf");
-console.log("test");
 
 },{}]},["aoUsR","hDgnn"], "hDgnn", "parcelRequire94c2")
 

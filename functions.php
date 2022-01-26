@@ -1,5 +1,23 @@
 <?php 
 
+function dump($var){
+	echo '<pre>';
+	echo print_r($var);	
+	echo '</pre>';	
+}
+
+/**
+* Load custom CSS and JavaScript.
+*/
+add_action( 'wp_enqueue_scripts', 'wpdocs_my_enqueue_scripts' );
+function wpdocs_my_enqueue_scripts() {
+    // Enqueue my styles.
+    wp_enqueue_style( 'main-style', get_template_directory_uri() . '/dist/scss/style.css' );
+     
+    // Enqueue my scripts.
+    wp_enqueue_script( 'main-scripts', get_template_directory_uri() . '/dist/js/main.js', array(), null, true );
+}
+
 //register menu
 if ( ! function_exists( 'mytheme_register_nav_menu' ) ) {
  
@@ -20,7 +38,13 @@ if( function_exists('acf_add_options_page') ) {
 		'menu_title'	=> 'Theme Settings',
 		'menu_slug' 	=> 'theme-general-settings',
 		'capability'	=> 'edit_posts',
-		'redirect'		=> false
+		'redirect'		=> true
+	));
+
+	acf_add_options_sub_page(array(
+		'page_title' 	=> 'Styling Settings',
+		'menu_title'	=> 'Styling',
+		'parent_slug' 	=> 'theme-general-settings',
 	));
 		
 	acf_add_options_sub_page(array(
@@ -43,6 +67,7 @@ if( function_exists('acf_add_options_page') ) {
 	
 }
 
+//enable upload file format
 function my_myme_types($mime_types){
     $mime_types['svg'] = 'image/svg+xml';
     $mime_types['ttf'] = 'application/x-font-ttf';
@@ -52,6 +77,42 @@ function my_myme_types($mime_types){
 }
 add_filter('upload_mimes', 'my_myme_types', 1, 1);
 
-//include others
+
+//ACF custom color pallete
+add_action('acf/input/admin_footer', 'my_acf_input_admin_footer');
+function my_acf_input_admin_footer() {
+
+	$pallete = get_field('global_colors', 'options')['pallete'];
+
+	foreach($pallete as $p){
+		$colors[] = $p['color'];
+	}
+	
+	?>
+	<script type="text/javascript">
+	(function($) {
+
+		// console.log(<?php echo json_encode($colors); ?>);
+		
+		acf.add_filter('color_picker_args', function( args, $field ){
+				
+			args.palettes = <?php echo json_encode($colors); ?>;
+			
+			// return
+			return args;
+					
+		});
+		
+	})(jQuery);	
+	</script>
+	<?php
+			
+	}
+	
+   
+
+
+
+//include features
 require_once('includes/advanced-custom-fields-nav-menu-field/fz-acf-nav-menu.php');
 require_once('includes/acf-Google-Fonts/acf-Google-Fonts.php');
